@@ -1,24 +1,39 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 class UserAuthRepository {
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ["email"]);
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   // true -> go home page
   // false -> go login page
   bool isAlreadyAuthenticated() {
-    // TODO: check if the user is authenticated
-    return false;
+    return _auth.currentUser != null;
   }
 
   Future<void> signOutGoogleUser() async {
-    // TODO: Google user signout
+    await _googleSignIn.signOut();
   }
 
   Future<void> signOutFirebaseUser() async {
-    // TODO: Firebase user signout
+    await _auth.signOut();
   }
 
   Future<void> signInWithGoogle() async {
-    // TODO: set up Google sign in
+    //Google sign in
+    final googleUser = await _googleSignIn.signIn();
+    final googleAuth = await googleUser!.authentication;
 
-    // TODO: get credenciales de usuario autenticado con Google
+    print(">> User email:${googleUser.email}");
+    print(">> User name:${googleUser.displayName}");
+    print(">> User photo:${googleUser.photoUrl}");
 
-    // TODO: firebase sign in con credenciales de Google
+    // credenciales de usuario autenticado con Google
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    // firebase sign in con credenciales de Google
+    final authResult = await _auth.signInWithCredential(credential);
   }
 }
